@@ -2,14 +2,18 @@ package com.smona.effect.card.effect1;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
+import com.smona.effect.card.R;
 import com.smona.effect.card.effect1.transformer.DefaultCommonTransformer;
 import com.smona.effect.card.effect1.transformer.DefaultTransformerAdd;
-import com.smona.effect.card.effect1.transformer.DefaultTransformerRemove;
 import com.smona.effect.card.effect1.transformer.DefaultTransformerToBack;
 import com.smona.effect.card.effect1.transformer.DefaultTransformerToFront;
 import com.smona.effect.card.effect1.transformer.DefaultZIndexTransformerCommon;
@@ -48,7 +52,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     //custom animation transformer for card moving to front, card moving to back, and common card
     private AnimationTransformer mTransformerToFront, mTransformerToBack, mTransformerCommon;
     //custom animation transformer for card add and remove
-    private AnimationTransformer mTransformerAnimAdd, mTransformerAnimRemove;
+    private AnimationTransformer mTransformerAnimAdd;
     //custom Z index transformer for card moving to front, card moving to back, and common card
     private ZIndexTransformer mZIndexTransformerToFront, mZIndexTransformerToBack, mZIndexTransformerCommon;
     //animation interpolator
@@ -73,7 +77,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
         mTransformerToBack = new DefaultTransformerToBack();
         mTransformerCommon = new DefaultCommonTransformer();
         mTransformerAnimAdd = new DefaultTransformerAdd();
-        mTransformerAnimRemove = new DefaultTransformerRemove();
         mZIndexTransformerToFront = new DefaultZIndexTransformerToFront();
         mZIndexTransformerToBack = new DefaultZIndexTransformerCommon();
         mZIndexTransformerCommon = new DefaultZIndexTransformerCommon();
@@ -353,88 +356,16 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     /**
      * init adapter view
      *
-     * @param adapter adapter
+     * @param resIds
      */
-    void initAdapterView(BaseAdapter adapter, boolean reset) {
+    void initAdapterView(int[] resIds) {
         if (mCardWidth > 0 && mCardHeight > 0) {
             if (mCards == null) {
                 mCardView.removeAllViews();
+                BaseAdapter adapter = new MyAdapter(resIds);
                 firstSetAdapter(adapter);
-            } else if (reset || mCards.size() != adapter.getCount()) {
-                resetAdapter(adapter);
-            } else {
-                notifySetAdapter(adapter);
             }
         }
-    }
-
-    /**
-     * reset adapter view
-     *
-     * @param adapter adapter
-     */
-    private void resetAdapter(BaseAdapter adapter) {
-        if (mTransformerAnimRemove == null) {
-            mCardView.removeAllViews();
-            firstSetAdapter(adapter);
-        } else {
-            mIsAddRemoveAnim = true;
-            for (int i = 0; i < mCardCount; i++) {
-                CardItem cardItem = mCards.get(i);
-                showAnimRemove(cardItem.view, mAnimAddRemoveDelay * i, i, i == mCardCount - 1, adapter);
-            }
-        }
-    }
-
-    private void showAnimRemove(final View view, int delay, final int position,
-                                final boolean isLast, final BaseAdapter adapter) {
-        final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1).setDuration(mAnimAddRemoveDuration);
-        valueAnimator.setStartDelay(delay);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float fraction = (float) animation.getAnimatedValue();
-                mTransformerAnimRemove.transformAnimation(view, fraction, mCardWidth, mCardHeight,
-                        position, position);
-                if (mAnimAddRemoveInterpolator != null) {
-                    mTransformerAnimRemove.transformInterpolatedAnimation(view,
-                            mAnimAddRemoveInterpolator.getInterpolation(fraction),
-                            mCardWidth, mCardHeight, position, position);
-                }
-            }
-        });
-        valueAnimator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setVisibility(View.GONE);
-                if (isLast) {
-                    mIsAddRemoveAnim = false;
-                    mCardView.removeAllViews();
-                    firstSetAdapter(adapter);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        mCardView.post(new Runnable() {
-            @Override
-            public void run() {
-                valueAnimator.start();
-            }
-        });
     }
 
     /**
@@ -510,33 +441,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
                 valueAnimator.start();
             }
         });
-    }
-
-    /**
-     * notify
-     *
-     * @param adapter adapter
-     */
-    private void notifySetAdapter(BaseAdapter adapter) {
-        mCardCount = adapter.getCount();
-        for (int i = 0; i < mCardCount; i++) {
-            CardItem cardItem = mCards.get(i);
-            View child = adapter.getView(cardItem.adapterIndex, cardItem.view, mCardView);
-            if (child != cardItem.view) {
-                if (cardItem.view != null) {
-                    mCardView.removeView(cardItem.view);
-                }
-                cardItem.view = child;
-                mCardView.addCardView(cardItem, i);
-                mZIndexTransformerCommon.transformAnimation(cardItem, mCurrentFraction, mCardWidth, mCardHeight,
-                        i, i);
-                mTransformerCommon.transformAnimation(child, mCurrentFraction, mCardWidth, mCardHeight, i, i);
-            }
-        }
-        for (int i = mCardCount - 1; i >= 0; i--) {
-            mCards.get(i).view.bringToFront();
-            mCardView.updateViewLayout(mCards.get(i).view, mCards.get(i).view.getLayoutParams());
-        }
     }
 
     /**
@@ -621,5 +525,48 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     void setCardAnimationListener(CardSpringView.CardAnimationListener cardAnimationListener) {
         this.mCardAnimationListener = cardAnimationListener;
+    }
+
+
+    private class MyAdapter extends BaseAdapter {
+        private int[] resIds = {};
+
+        MyAdapter(int[] resIds) {
+            this.resIds = resIds;
+        }
+
+        @Override
+        public int getCount() {
+            return resIds.length;
+        }
+
+        @Override
+        public Integer getItem(int position) {
+            return resIds[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout
+                        .item_card, parent, false);
+            }
+            convertView.setBackgroundResource(resIds[position]);
+            TextView textView = convertView.findViewById(R.id.title);
+            textView.setText("Index: " + position);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e("motianhu", "postion : " + position);
+                    mCardView.bringCardToFront(1);
+                }
+            });
+            return convertView;
+        }
     }
 }

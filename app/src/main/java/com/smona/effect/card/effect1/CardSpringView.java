@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-import android.widget.BaseAdapter;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
@@ -20,9 +19,8 @@ public class CardSpringView extends ViewGroup {
     //animation helper
     private CardAnimationHelper mAnimationHelper;
     //view adapter
-    private BaseAdapter mAdapter;
+    private int[] mAdapter;
     private int mCardWidth, mCardHeight;
-    private OnLayoutItemListener onLayoutItemListener;
 
     public CardSpringView(@NonNull Context context) {
         this(context, null);
@@ -69,15 +67,15 @@ public class CardSpringView extends ViewGroup {
             setMeasuredDimension(sizeWidth, sizeHeight);
         }
         if (mCardWidth == 0 || mCardHeight == 0) {
-            setCardSize(true);
+            setCardSize();
         }
     }
 
-    private void setCardSize(boolean resetAdapter) {
+    private void setCardSize() {
         mCardWidth = getMeasuredWidth();
         mCardHeight = (int) (mCardWidth * mCardRatio);
         mAnimationHelper.setCardSize(mCardWidth, mCardHeight);
-        mAnimationHelper.initAdapterView(mAdapter, resetAdapter);
+        mAnimationHelper.initAdapterView(mAdapter);
     }
 
     @Override
@@ -111,9 +109,6 @@ public class CardSpringView extends ViewGroup {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(mCardWidth,
                 mCardHeight);
         view.setLayoutParams(layoutParams);
-        if(onLayoutItemListener != null) {
-            onLayoutItemListener.onLayoutItem(card);
-        }
         return view;
     }
 
@@ -131,9 +126,9 @@ public class CardSpringView extends ViewGroup {
      *
      * @param adapter adapter
      */
-    public void setAdapter(BaseAdapter adapter) {
+    public void setNewData(int[] adapter) {
         this.mAdapter = adapter;
-        mAnimationHelper.initAdapterView(adapter, true);
+        mAnimationHelper.initAdapterView(adapter);
     }
 
     public void setTransformerToFront(AnimationTransformer toFrontTransformer) {
@@ -156,25 +151,12 @@ public class CardSpringView extends ViewGroup {
         mAnimationHelper.setAnimType(animType);
     }
 
-
-    public boolean isAnimating() {
-        return mAnimationHelper.isAnimating();
-    }
-
     public void setCardAnimationListener(CardAnimationListener cardAnimationListener){
         mAnimationHelper.setCardAnimationListener(cardAnimationListener);
-    }
-
-    public void setOnLayoutItemListener(OnLayoutItemListener layoutItemListener) {
-        this.onLayoutItemListener = layoutItemListener;
     }
 
     public static interface CardAnimationListener{
         void onAnimationStart();
         void onAnimationEnd();
-    }
-
-    public static interface OnLayoutItemListener {
-        void onLayoutItem(CardItem item);
     }
 }

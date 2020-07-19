@@ -17,18 +17,6 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/pre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="pre" />
-
-        <Button
-            android:id="@+id/change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="change" />
-
-        <Button
             android:id="@+id/next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
