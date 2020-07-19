@@ -1,7 +1,6 @@
 package com.smona.effect.card.effect1;
 
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,7 @@ public class CardSpringView extends ViewGroup {
     //view adapter
     private BaseAdapter mAdapter;
     private int mCardWidth, mCardHeight;
+    private OnLayoutItemListener onLayoutItemListener;
 
     public CardSpringView(@NonNull Context context) {
         this(context, null);
@@ -111,20 +111,10 @@ public class CardSpringView extends ViewGroup {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(mCardWidth,
                 mCardHeight);
         view.setLayoutParams(layoutParams);
-        view.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bringCardToFront(card);
-            }
-        });
-        return view;
-    }
-
-    private void bringCardToFront(CardItem card) {
-        if (!isClickable()) {
-            return;
+        if(onLayoutItemListener != null) {
+            onLayoutItemListener.onLayoutItem(card);
         }
-        mAnimationHelper.bringCardToFront(card);
+        return view;
     }
 
     /**
@@ -143,12 +133,6 @@ public class CardSpringView extends ViewGroup {
      */
     public void setAdapter(BaseAdapter adapter) {
         this.mAdapter = adapter;
-        mAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                mAnimationHelper.notifyDataSetChanged(mAdapter);
-            }
-        });
         mAnimationHelper.initAdapterView(adapter, true);
     }
 
@@ -160,24 +144,8 @@ public class CardSpringView extends ViewGroup {
         mAnimationHelper.setTransformerToBack(toBackTransformer);
     }
 
-    public void setCommonSwitchTransformer(AnimationTransformer commonTransformer) {
-        mAnimationHelper.setCommonSwitchTransformer(commonTransformer);
-    }
-
-    public void setTransformerCommon(AnimationTransformer transformerCommon) {
-        mAnimationHelper.setTransformerCommon(transformerCommon);
-    }
-
-    public void setZIndexTransformerToFront(ZIndexTransformer zIndexTransformerToFront) {
-        mAnimationHelper.setZIndexTransformerToFront(zIndexTransformerToFront);
-    }
-
     public void setZIndexTransformerToBack(ZIndexTransformer zIndexTransformerToBack) {
         mAnimationHelper.setZIndexTransformerToBack(zIndexTransformerToBack);
-    }
-
-    public void setZIndexTransformerCommon(ZIndexTransformer zIndexTransformerCommon) {
-        mAnimationHelper.setZIndexTransformerCommon(zIndexTransformerCommon);
     }
 
     public void setAnimInterpolator(Interpolator animInterpolator) {
@@ -188,22 +156,6 @@ public class CardSpringView extends ViewGroup {
         mAnimationHelper.setAnimType(animType);
     }
 
-    public void setTransformerAnimAdd(AnimationTransformer transformerAnimAdd) {
-        mAnimationHelper.setTransformerAnimAdd(transformerAnimAdd);
-    }
-
-    public void setTransformerAnimRemove(AnimationTransformer transformerAnimRemove) {
-        mAnimationHelper.setTransformerAnimRemove(transformerAnimRemove);
-    }
-
-    public void setAnimAddRemoveInterpolator(Interpolator animAddRemoveInterpolator) {
-        mAnimationHelper.setAnimAddRemoveInterpolator(animAddRemoveInterpolator);
-    }
-
-    public void setCardSizeRatio(float cardSizeRatio) {
-        this.mCardRatio = cardSizeRatio;
-        setCardSize(false);
-    }
 
     public boolean isAnimating() {
         return mAnimationHelper.isAnimating();
@@ -213,8 +165,16 @@ public class CardSpringView extends ViewGroup {
         mAnimationHelper.setCardAnimationListener(cardAnimationListener);
     }
 
+    public void setOnLayoutItemListener(OnLayoutItemListener layoutItemListener) {
+        this.onLayoutItemListener = layoutItemListener;
+    }
+
     public static interface CardAnimationListener{
         void onAnimationStart();
         void onAnimationEnd();
+    }
+
+    public static interface OnLayoutItemListener {
+        void onLayoutItem(CardItem item);
     }
 }

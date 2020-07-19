@@ -1,12 +1,14 @@
 package com.smona.effect.card;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +30,8 @@ public class FirstFragment extends Fragment {
     private BaseAdapter mAdapter1, mAdapter2;
     private int[] resId = {R.mipmap.pic1, R.mipmap.pic2, R.mipmap.pic3, R.mipmap
             .pic4, R.mipmap.pic5};
+
+    private String[] strIds = {"Title 1", "Title 2" , "Title 3", "Title 4", "Title 5", "Title 6"};
     private boolean mIsAdapter1 = true;
 
     @Override
@@ -69,6 +73,12 @@ public class FirstFragment extends Fragment {
                 Toast.makeText(getContext(), "Animation End", Toast.LENGTH_SHORT).show();
             }
         });
+        mCardView.setOnLayoutItemListener(new CardSpringView.OnLayoutItemListener() {
+            @Override
+            public void onLayoutItem(final CardItem item) {
+
+            }
+        });
         initButton(view);
     }
 
@@ -88,11 +98,11 @@ public class FirstFragment extends Fragment {
         view.findViewById(R.id.next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsAdapter1) {
-                    setStyle2();
-                } else {
+//                if (mIsAdapter1) {
+//                    setStyle2();
+//                } else {
                     setStyle3();
-                }
+                //}
                 mCardView.bringCardToFront(1);
             }
         });
@@ -168,12 +178,12 @@ public class FirstFragment extends Fragment {
     }
 
     private void setStyle3() {
-        mCardView.setClickable(false);
+        mCardView.setClickable(true);
         mCardView.setAnimType(CardSpringView.ANIM_TYPE_FRONT_TO_LAST);
-        mCardView.setAnimInterpolator(new OvershootInterpolator(-8));
+        mCardView.setAnimInterpolator(new OvershootInterpolator(-15));
         mCardView.setTransformerToFront(new DefaultCommonTransformer());
         mCardView.setTransformerToBack(new AnimationTransformer() {
-            @Override
+           /* @Override
             public void transformAnimation(View view, float fraction, int cardWidth, int cardHeight, int fromPosition, int toPosition) {
                 int positionCount = fromPosition - toPosition;
                 float scale = (0.8f - 0.1f * fromPosition) + (0.1f * fraction * positionCount);
@@ -187,6 +197,26 @@ public class FirstFragment extends Fragment {
                     view.setRotationY(-45 * (1 - fraction));
                 }
             }
+
+            @Override
+            public void transformInterpolatedAnimation(View view, float fraction, int cardWidth, int cardHeight, int fromPosition, int toPosition) {
+                int positionCount = fromPosition - toPosition;
+                float scale = (0.8f - 0.1f * fromPosition) + (0.1f * fraction * positionCount);
+                view.setTranslationY(-cardHeight * (0.8f - scale) * 0.5f - cardWidth * (0.02f *
+                        fromPosition - 0.02f * fraction * positionCount));
+            }*/
+           @Override
+           public void transformAnimation(View view, float fraction, int cardWidth, int cardHeight, int fromPosition, int toPosition) {
+               int positionCount = fromPosition - toPosition;
+               float scale = (0.8f - 0.1f * fromPosition) + (0.1f * fraction * positionCount);
+               view.setScaleX(scale);
+               view.setScaleY(scale);
+               if (fraction < 0.7) {
+                   view.setRotationX(180 * fraction);
+               } else {
+                   view.setRotationX(180 * (1 - fraction));
+               }
+           }
 
             @Override
             public void transformInterpolatedAnimation(View view, float fraction, int cardWidth, int cardHeight, int fromPosition, int toPosition) {
@@ -213,7 +243,7 @@ public class FirstFragment extends Fragment {
         });
     }
 
-    private static class MyAdapter extends BaseAdapter {
+    private class MyAdapter extends BaseAdapter {
         private int[] resIds = {};
 
         MyAdapter(int[] resIds) {
@@ -236,11 +266,21 @@ public class FirstFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card, parent, false);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout
+                        .item_card, parent, false);
             }
             convertView.setBackgroundResource(resIds[position]);
+            TextView textView = convertView.findViewById(R.id.title);
+            textView.setText("Index: " + position);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e("motianhu", "postion : " + position);
+                    mCardView.bringCardToFront(1);
+                }
+            });
             return convertView;
         }
     }

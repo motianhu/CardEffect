@@ -53,8 +53,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     private ZIndexTransformer mZIndexTransformerToFront, mZIndexTransformerToBack, mZIndexTransformerCommon;
     //animation interpolator
     private Interpolator mAnimInterpolator, mAnimAddRemoveInterpolator;
-    //view adapter needs to be notify while animation
-    private BaseAdapter mTempAdapter;
     //current animation fraction
     private float mCurrentFraction = 1;
     //animation listener
@@ -337,9 +335,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
         mPositionToBack = 0;
         mCurrentFraction = 1;
         mIsAnim = false;
-        if (mTempAdapter != null) {
-            notifyDataSetChanged(mTempAdapter);
-        }
         if (mCardAnimationListener != null) {
             mCardAnimationListener.onAnimationEnd();
         }
@@ -420,11 +415,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
                 if (isLast) {
                     mIsAddRemoveAnim = false;
                     mCardView.removeAllViews();
-                    if (mTempAdapter != null) {
-                        notifyDataSetChanged(mTempAdapter);
-                    } else {
-                        firstSetAdapter(adapter);
-                    }
+                    firstSetAdapter(adapter);
                 }
             }
 
@@ -500,9 +491,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
             public void onAnimationEnd(Animator animation) {
                 if (isLast) {
                     mIsAddRemoveAnim = false;
-                    if (mTempAdapter != null) {
-                        notifyDataSetChanged(mTempAdapter);
-                    }
                 }
             }
 
@@ -551,24 +539,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
         }
     }
 
-    void notifyDataSetChanged(BaseAdapter adapter) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            mTempAdapter = adapter;
-        } else {
-            mTempAdapter = null;
-            initAdapterView(adapter, false);
-        }
-    }
-
-    void bringCardToFront(CardItem card) {
-        if (mCards == null || mTransformerCommon == null || mTransformerToFront ==
-                null || mTransformerToBack == null) {
-            return;
-        }
-        int position = mCards.indexOf(card);
-        bringCardToFront(position);
-    }
-
     /**
      * bring the specific position card to front
      *
@@ -591,11 +561,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
         }
     }
 
-//    @Override
-//    public int compare(CardItem o1, CardItem o2) {
-//        return o1.zIndex < o2.zIndex ? -1 : 1;
-//    }
-
     void setCardSize(int cardWidth, int cardHeight) {
         this.mCardWidth = cardWidth;
         this.mCardHeight = cardHeight;
@@ -615,39 +580,11 @@ class CardAnimationHelper implements Animator.AnimatorListener,
         this.mTransformerToBack = toBackTransformer;
     }
 
-    void setCommonSwitchTransformer(AnimationTransformer commonTransformer) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mTransformerCommon = commonTransformer;
-    }
-
-    void setTransformerCommon(AnimationTransformer transformerCommon) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mTransformerCommon = transformerCommon;
-    }
-
-    void setZIndexTransformerToFront(ZIndexTransformer zIndexTransformerToFront) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mZIndexTransformerToFront = zIndexTransformerToFront;
-    }
-
     void setZIndexTransformerToBack(ZIndexTransformer zIndexTransformerToBack) {
         if (mIsAnim || mIsAddRemoveAnim) {
             return;
         }
         this.mZIndexTransformerToBack = zIndexTransformerToBack;
-    }
-
-    void setZIndexTransformerCommon(ZIndexTransformer zIndexTransformerCommon) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mZIndexTransformerCommon = zIndexTransformerCommon;
     }
 
     void setAnimInterpolator(Interpolator animInterpolator) {
@@ -662,27 +599,6 @@ class CardAnimationHelper implements Animator.AnimatorListener,
             return;
         }
         this.mAnimType = animType;
-    }
-
-    void setTransformerAnimAdd(AnimationTransformer transformerAnimAdd) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mTransformerAnimAdd = transformerAnimAdd;
-    }
-
-    void setTransformerAnimRemove(AnimationTransformer transformerAnimRemove) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mTransformerAnimRemove = transformerAnimRemove;
-    }
-
-    void setAnimAddRemoveInterpolator(Interpolator animAddRemoveInterpolator) {
-        if (mIsAnim || mIsAddRemoveAnim) {
-            return;
-        }
-        this.mAnimAddRemoveInterpolator = animAddRemoveInterpolator;
     }
 
     void setAnimAddRemoveDelay(int animAddRemoveDelay) {

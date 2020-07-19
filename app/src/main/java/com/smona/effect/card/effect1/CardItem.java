@@ -5,7 +5,7 @@ import android.view.View;
 public class CardItem {
     public View view;
     public float zIndex;
-    int adapterIndex;
+    public int adapterIndex;
 
     CardItem(View view, float zIndex, int adapterIndex) {
         this.view = view;
