@@ -1,28 +1,22 @@
 package com.smona.effect.card;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.smona.aoplib.DoubleClick;
 import com.smona.effect.card.effect1.AnimationTransformer;
 import com.smona.effect.card.effect1.CardItem;
 import com.smona.effect.card.effect1.CardSpringView;
 import com.smona.effect.card.effect1.ZIndexTransformer;
 import com.smona.effect.card.effect1.transformer.DefaultCommonTransformer;
-import com.smona.effect.card.effect1.transformer.DefaultTransformerToBack;
-import com.smona.effect.card.effect1.transformer.DefaultTransformerToFront;
-import com.smona.effect.card.effect1.transformer.DefaultZIndexTransformerCommon;
 
 public class FirstFragment extends Fragment {
 
@@ -72,6 +66,7 @@ public class FirstFragment extends Fragment {
 
     private void initButton(View view) {
         view.findViewById(R.id.next).setOnClickListener(new View.OnClickListener() {
+            @DoubleClick
             @Override
             public void onClick(View v) {
                 setStyle3();
