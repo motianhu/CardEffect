@@ -1,5 +1,6 @@
 package com.smona.effect.card;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.smona.effect.card.effect1.CardItem;
 import com.smona.effect.card.effect1.CardSpringView;
 import com.smona.effect.card.effect1.ZIndexTransformer;
 import com.smona.effect.card.effect1.transformer.DefaultCommonTransformer;
+import com.smona.effect.submain.SubMainActivity;
 
 public class FirstFragment extends Fragment {
 

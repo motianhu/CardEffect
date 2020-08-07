@@ -1,3 +1,4 @@
+include ':submain'
 include ':aoplib'
 include ':app'
 rootProject.name = "EffectCard"

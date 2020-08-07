@@ -1,12 +1,10 @@
-apply plugin: 'com.android.application'
-apply plugin: 'android-aspectjx'  // 使用 AspectJX 插件
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
 
     defaultConfig {
-        applicationId "com.smona.effect.card"
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
@@ -23,12 +21,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.navigation:navigation-fragment:2.3.0'
-    implementation 'androidx.navigation:navigation-ui:2.3.0'
 
-    implementation project(':aoplib')
-    implementation project(':submain')
 }
